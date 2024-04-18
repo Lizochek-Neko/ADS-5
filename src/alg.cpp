@@ -47,8 +47,7 @@ void appendOperation(std::string* post, TStack<char, 100>* stack) {
 }
 
 int calculate(int a, char o, int b) {
-    switch (o)
-    {
+    switch (o) {
     case '+': return a + b;
     case '-': return a - b;
     case '*': return a * b;
