@@ -4,9 +4,8 @@
 #include <map>
 #include "tstack.h"
 
-const std::string operations = "()+-*/";
-
 bool isOperation(const char c) {
+    const std::string operations = "()+-*/";
     return operations.find(c) != std::string::npos;
 }
 
@@ -26,29 +25,28 @@ int getPriority(char c) {
     }
 }
 
-std::string appendOperand(std::string& post, const std::string& operand) {
+std::string appendOperand(std::string* post, const std::string& operand) {
     if (operand.empty()) {
         return "";
     }
-    if (!post.empty()) {
-        post += " ";
+    if (!post->empty()) {
+        post->append(" ");
     }
-    post += operand;
+    post->append(operand);
     return "";
 }
 
-void appendOperation(std::string& post, TStack<char, 100>& stack) {
-    if (stack.get() != '(') {
-        if (!post.empty()) {
-            post += " ";
+void appendOperation(std::string* post, TStack<char, 100>* stack) {
+    if (stack->get() != '(') {
+        if (!post->empty()) {
+            post->append(" ");
         }
-        post += stack.get();
+        post->append(std::string(1, stack->get()));
     }
-    stack.pop();
+    stack->pop();
 }
 
-int calculate(int a, char o, int b)
-{
+int calculate(int a, char o, int b) {
     switch (o)
     {
     case '+': return a + b;
@@ -64,19 +62,19 @@ std::string infx2pstfx(std::string inf) {
     std::string post = "";
     std::string operand = "";
     TStack<char, 100> stack;
-    for (auto c : inf)
-    {
+    for (auto c : inf) {
         if (isOperand(c)) {
             operand += c;
             continue;
         }
-        operand = appendOperand(post, operand);
+        operand = appendOperand(&post, operand);
         int priority;
         priority = getPriority(c);
-        if (priority == 0 || stack.isEmpty() || priority > getPriority(stack.get())) {
+        if (priority == 0 || stack.isEmpty() ||
+            priority > getPriority(stack.get())) {
         } else {
             while (!stack.isEmpty() && getPriority(stack.get()) >= priority) {
-                appendOperation(post, stack);
+                appendOperation(&post, &stack);
             }
             if (stack.get() == '(') {
                 stack.pop();
@@ -86,9 +84,9 @@ std::string infx2pstfx(std::string inf) {
             stack.push(c);
         }
     }
-    operand = appendOperand(post, operand);
+    operand = appendOperand(&post, operand);
     while (!stack.isEmpty()) {
-        appendOperation(post, stack);
+        appendOperation(&post, &stack);
     }
     return post;
 }
@@ -96,10 +94,8 @@ std::string infx2pstfx(std::string inf) {
 int eval(std::string pref) {
     TStack<int, 100> stack;
     std::string s("");
-    for (auto c : pref)
-    {
-        if (isOperation(c))
-        {
+    for (auto c : pref) {
+        if (isOperation(c)) {
             int b = stack.get();
             stack.pop();
             int a = stack.get();
@@ -108,8 +104,7 @@ int eval(std::string pref) {
             stack.push(result);
             continue;
         }
-        if (c == ' ')
-        {
+        if (c == ' ') {
             if (s.size() != 0) {
                 int o = atoi(s.c_str());
                 s.clear();
